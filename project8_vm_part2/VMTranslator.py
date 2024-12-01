@@ -1,4 +1,4 @@
-#! /bin/python3
+#! /bin/python
 # Assembler of the Hack assembly language to the Hack instruction set binary code
 
 import sys, os
@@ -254,7 +254,7 @@ class CodeWriter:
                     "M=M+1",
                 ]
             else : 
-                print(f"Can't use command {command} on segment {constant}")
+                print(f"Can't use command {command} on segment {segment}")
         
         # Pushing from / popping to a RAM block
         elif segment in ["local", "argument", "this", "that"]:
@@ -405,8 +405,43 @@ if __name__ == "__main__":
 
     # Getting the VM script path thought CL argument
     if len(sys.argv) != 2:
-        print(f"Usage : {sys.argv[0]} <prog.vm>")
+        print(f"Usage : {sys.argv[0]} <prog.vm | progDirectory>")
         exit()
+
+    # Check if the input is a vm file or a directory
+    if sys.argv[1].endswith(".vm"):
+        usage_mode = "standalone_source_file"
+
+    else:
+        if os.path.isdir(sys.argv[1]):
+            src_dir = sys.argv[1]
+            # List all the files ending with .vm
+            files = os.listdir(src_dir)
+            vm_files = []
+            for f in files:
+                if f.endswith(".vm"):
+                    vm_files.append(f.split("/")[-1]) # Get the file name, without the path
+
+            # Exit if no vm file found
+            if len(vm_files) == 0:
+                print("Error : no VM code file found in the supplied directory (must end with .vm)")
+                exit()
+            # Check if the Sys.vm file exists
+            if not("Sys.vm" in vm_files):
+                print("Error : no Sys.vm code file found in the supplied directory")
+                exit()
+            # Open the Sys.vm file and check for the presence of the Sys.init function
+            with open(os.path.join(src_dir, "Sys.vm")) as fd:
+                sys_code = ''.join(fd.readlines())
+                if not("function Sys.init" in sys_code):
+                    print("Error : the Sys.vm file does not contain a Sys.init function decalaration")
+                    exit()
+
+            # We have a Sys.vm file and it contains a Sys.init function
+            usage_mode = "bootstrap_and_sources"
+
+    print(usage_mode)
+    exit()
 
     # Construct Parser
     parser = Parser(sys.argv[1])
