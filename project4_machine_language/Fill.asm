@@ -1,0 +1,53 @@
+    @i
+    M=0
+(MAINLOOP)
+    @i
+    M=0
+    // Getting if a key is pressed
+    @KBD
+    D=M 
+    @FILLWHITELOOP
+    D;JEQ
+    @FILLBLACKLOOP
+    0;JMP
+(FILLBLACKLOOP)
+    //Setting R0 to KBD
+    @KBD
+    D=M 
+    @R0
+    M=D
+    @SCREEN
+    D=A 
+    @i 
+    A=D+M
+    M=-1
+    @i
+    M=M+1
+    D=M
+    @8000
+    D=A-D
+    @MAINLOOP
+    D;JEQ
+    @FILLBLACKLOOP
+    0;JMP
+(FILLWHITELOOP)
+    //Setting R0 to 2
+    @KBD
+    D=M
+    @R0
+    M=D
+    @SCREEN
+    D=A 
+    @i 
+    A=D+M
+    M=0
+    @i
+    M=M+1
+    D=M
+    @8000
+    D=A-D
+    @MAINLOOP
+    D;JEQ
+    @FILLWHITELOOP
+    0;JMP
+    
